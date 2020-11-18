@@ -3,6 +3,7 @@ import pandas
 import scipy
 import numpy
 import sys
+from numpy import linalg
 
 
 TRAIN_DATA_URL = "https://storage.googleapis.com/kubric-hiring/linreg_train.csv"
@@ -34,42 +35,19 @@ def predict_price(area) -> float:
     y_train = y_train.astype(float)
 
 
-    #print(x_train.shape)
-    #print(y_train.shape)
+    x_train = x_train.reshape(1,266)
+    y_train = y_train.reshape(266,1)
+    x_train = numpy.transpose(x_train)
 
-    #x_train = pandas.DataFrame(x_train)
-    #y_train = pandas.DataFrame(y_train)
+    x_train = numpy.insert(x_train, 0, 1, axis=1)
+    print(x_train.shape)
 
-    w=numpy.random.randn(1)
-    b = numpy.random.random(1)
-    print(len(w), len(b))
-    y_pr = []
-    gr = []
-    gr_b = []
-    for i in range(len(x_train)):
-         y_pred = numpy.dot(w,x_train[i]) + b
-         y_pr.append(y_pred)
-     #for i in range(10):
-         grad = (1/len(y_train))*(y_pred - y_train[i])*x_train[i]
-         gr.append(grad)
-         grad_b = (1/len(y_train))*(y_pred - y_train[i])
-         gr_b.append(grad_b)
-         print(grad)
-    w = w - 0.01*numpy.sum(gr)
-    b = b - 0.01*numpy.sum(gr_b)
-
-
-    y_pr_prices = []
-    for i in range(len(areas)):
-        y_pred_prices = numpy.dot(w,areas[i]) + b
-        y_pr_prices.append(y_pred_prices)
-
-
-
-
-
-
-    return y_pr_prices
+    w1 = numpy.matmul(numpy.linalg.inv((numpy.matmul(numpy.transpose(x_train),x_train))),
+            numpy.matmul( numpy.transpose(x_train),y_train))
+    print(w1[1])
+    #area = numpy.insert(area,0,1)
+    y_pred_prices = w1[1]*area +w1[0]
+    return y_pred_prices
     # YOUR IMPLEMENTATION HERE
 
 
